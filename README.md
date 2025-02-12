@@ -1,6 +1,6 @@
 # HYPERNEXUS
 
-## A lightWeight, robust and easily extensible HTTP(/2,/3)/HTTPS network transport utility.
+## A lightWeight, robust and easily extensible HTTP(/2,/3)/HTTPS network transport utility
 
 Built with :heart: using TypeScript and Node.js
 
@@ -91,6 +91,10 @@ public `git clone https://github.com/paullaster/hypernexus.git`
 #### Use this utility in your project
 
 `npm i @brainspore/hypernexus`
+
+##### Documentation
+
+[Read more here :books:](https://paullaster.github.io/hypernexus)
 
 ##### Buy me a coffee
 
