@@ -81,11 +81,15 @@ runTest();
 ```
 
 Run your test script. You can change the file name in `package.json`
+
+Then run
+
 `npm run test`
 
 #### Clone this repository
 
 private `git clone https://github.com/kinetics254/hypernexus.git`
+
 public `git clone https://github.com/paullaster/hypernexus.git`
 
 #### Use this utility in your project
