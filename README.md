@@ -8,7 +8,7 @@ Built with :heart: using TypeScript and Node.js
 
  Dynamically handle Window-based (NTLM, Basic, OAuth2), token-based authetication HTTP requests out of the box
 
-Hypernexus is a developer centered util; zero boilerplate, instantly relatable methods and advnaced functionalities are also exposed for any outgoing nerds to extend the utility with ease
+Hypernexus is a developer centered util; zero boilerplate, instantly relatable methods and advanced functionalities are also exposed for any outgoing nerd to extend the utility with ease
 
 ## Features tour
 
@@ -94,4 +94,4 @@ public `git clone https://github.com/paullaster/hypernexus.git`
 
 ##### Buy me a coffee
 
-[Buy me a coffee](https://github.com/paullaster)
+[:coffee:](https://github.com/paullaster)
