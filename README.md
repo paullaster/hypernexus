@@ -1,6 +1,6 @@
 # HYPERNEXUS
 
-## A lightWeight, robust and easily extensible HTTP(/2,/3)/HTTPS network transport utility
+A lightWeight, robust and easily extensible HTTP(/2,/3)/HTTPS network transport utility
 
 Built with :heart: using TypeScript and Node.js
 
@@ -12,7 +12,7 @@ Hypernexus is a developer centered util; zero boilerplate, instantly relatable m
 
 ## Features tour
 
-### HTTP CRUD Operations
+HTTP CRUD Operations
 
 ```ts
 // A get request with a filter BC 365 ODATA API
@@ -40,13 +40,13 @@ transport.batch([transport.get(), transport.get(), transport.get(),...kth])
 
 ```
 
-#### What it offers
+## What it offers
 
 Built-in caching for redandant request
 connection pooling
 Performance monitoring
 
-#### Setup this project locally
+### Setup this project locally
 
 `.env` file
 
@@ -60,7 +60,7 @@ BC_PASSWORD="userPassword"
 BC_DOMAIN=
 ```
 
-#### Testing this utility
+### Testing this utility
 
 Write a simple unit test that suites your scenarios
 
@@ -86,20 +86,20 @@ Then run
 
 `npm run test`
 
-#### Clone this repository
+### Clone this repository
 
 private `git clone https://github.com/kinetics254/hypernexus.git`
 
 public `git clone https://github.com/paullaster/hypernexus.git`
 
-#### Use this utility in your project
+### Use this utility in your project
 
 `npm i @brainspore/hypernexus`
 
-##### Documentation
+### Documentation
 
 [Read more here :books:](https://paullaster.github.io/hypernexus)
 
-##### Buy me a coffee
+ Buy me a coffee
 
 [:coffee:](https://github.com/paullaster)
