@@ -65,7 +65,7 @@ BC_DOMAIN=
 Write a simple unit test that suites your scenarios
 
 ```ts
-// integration/unit/test.mts
+// test/unit/test.mts
 import { transport } from "../../index.js";
 
 async function runTest() {

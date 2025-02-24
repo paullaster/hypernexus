@@ -66,17 +66,27 @@ export class Transport {
         });
 
         this.axiosInstance.interceptors.request.use((config) => {
-            
+            this.logger.debug({ url: config.url, method: config.method }, 'Outgoing requests');
             if (config.params) {
                 config.params = {...config.params};
             }
             return config;
         })
         // Reuest interceptor for retry logic
-        this.axiosInstance.interceptors.response.use(async (response: AxiosResponse) => response,
-
+        this.axiosInstance.interceptors.response.use(async (response: AxiosResponse) => {
+            this.logger.debug({
+                url: response.config.url,
+                status: response.status,
+            }, 'Incoming response');
+            return response
+        },
             async (error) => {
                 const config = error.config;
+                this.logger.debug({
+                    url: error.config?.url,
+                    status: error.response?.status,
+                    message: error.message,
+                });
                 if (!config) {
                     throw new TransportError(error.message, error.response?.status, error.response?.data);
                 }
