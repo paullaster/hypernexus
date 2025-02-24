@@ -66,6 +66,7 @@ export class Transport {
         });
 
         this.axiosInstance.interceptors.request.use((config) => {
+            
             if (config.params) {
                 config.params = {...config.params};
             }
@@ -87,10 +88,10 @@ export class Transport {
                     return new Promise((resolve) => setTimeout(() => resolve(this.axiosInstance(config)), 1000));
                 }
                 if (error.response?.status === 429) {
-                    throw new RateLimitError('Rate limit exceeded', error.response?.headers['Retry-After']);
+                    throw new RateLimitError('Rate limit exceeded', 429, error.response?.headers['Retry-After']);
                 }
                 if (error.code === 'ECONNABORTED') {
-                    throw new TimeoutError('Request timed out');
+                    throw new TimeoutError('Request timed out', 408, error);
                 }
                 throw new TransportError(error.message, error.response?.status, error.response?.data);
             })
