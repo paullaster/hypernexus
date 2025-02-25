@@ -1,8 +1,8 @@
 {
   "name": "@brainspore/hypernexus",
   "version": "4.0.0",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "start": "ts-node --loader ts-node/esm test.ts",
