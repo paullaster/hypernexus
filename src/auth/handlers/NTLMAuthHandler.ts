@@ -1,6 +1,6 @@
 import { NtlmClient, NtlmCredentials, AxiosRequestConfig } from "axios-ntlm";
 import { AxiosInstance } from 'axios';
-import { AuthHandler } from "../AuthHandler.ts";
+import { AuthHandler } from "../AuthHandler.js";
 
 /**
  * NTLM AUTHHANDLER

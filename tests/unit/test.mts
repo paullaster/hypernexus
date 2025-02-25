@@ -1,4 +1,4 @@
-import { transport } from "../../index.js";
+import { transport } from "../../src/index.ts";
 
 async function runTest() {
     try {

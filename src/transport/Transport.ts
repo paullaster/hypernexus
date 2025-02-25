@@ -2,15 +2,15 @@
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Agent } from 'http';
 import { Agent as HttpsAgent } from 'https';
-import { AuthHandler } from '../auth/AuthHandler.ts';
-import { logger } from '../utils/logger.ts';
+import { AuthHandler } from '../auth/AuthHandler.js';
+import { logger } from '../utils/logger.js';
 import NodeCache from 'node-cache';
 import Bottleneck from 'bottleneck';
 import pino from 'pino';
-import { RateLimitError } from '../errors/RateLimitError.ts';
-import { TimeoutError } from '../errors/TimeoutError.ts';
-import { TransportError } from '../errors/TransportError.ts';
-import { metrics } from '../utils/metrics.ts';
+import { RateLimitError } from '../errors/RateLimitError.js';
+import { TimeoutError } from '../errors/TimeoutError.js';
+import { TransportError } from '../errors/TransportError.js';
+import { metrics } from '../utils/metrics.js';
 
 
 /**

@@ -35,7 +35,8 @@ const ensureLogdir = async (dir: string) => {
     try { 
         // Check directory exists
         await stat(dir); 
-    } catch (err: unknown) { 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) { 
         if (err.code === 'ENOENT') { 
             // Create directory
             await mkdir(dir, { recursive: true });

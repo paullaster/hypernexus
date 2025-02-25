@@ -1,4 +1,4 @@
-import { TransportError } from "./TransportError.ts";
+import { TransportError } from "./TransportError.js";
 
 export class RateLimitError extends TransportError {
     constructor(message: string, public timeout?: number, public retryAfter?: number) {

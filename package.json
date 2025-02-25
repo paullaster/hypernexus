@@ -1,20 +1,29 @@
 {
   "name": "@brainspore/hypernexus",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "start": "ts-node --loader ts-node/esm test.ts",
-    "build": "tsc",
+    "build": "tsc --build --clean && tsc --build",
     "watch": "tsc --watch",
     "test:unit": "vitest run",
     "test:e2e": "vitest run --env=e2e",
     "test": "tsx tests/unit/test.mts",
     "generate-docs": "typedoc --out docs src",
     "lint": "eslint src --ext js,mjs,cjs,ts",
-    "format": "prettier --write 'src/**/*.{js,mjs,cjs,ts}'"
+    "format": "prettier --write 'src/**/*.{js,mjs,cjs,ts}'",
+    "release": "zx release.js",
+    "release:patch": "zx release.js",
+    "release:minor": "zx release.js --minor",
+    "release:major": "zx release.js --major"
   },
-  "keywords": [],
+  "keywords": [
+    "Windows Authentication",
+    "Nodejs",
+    "Network Transport Wrapper"
+  ],
   "author": "Paullaster Okoth",
   "license": "MIT",
   "description": "A lightWeight, robust and easily extensible HTTP(/2,/3)/HTTPS network transport utility",
@@ -23,11 +32,13 @@
     "@types/node": "^22.13.1",
     "eslint": "^9.20.0",
     "globals": "^15.14.0",
+    "npm-check-updates": "^17.1.15",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typedoc": "^0.27.7",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.24.0"
+    "typescript-eslint": "^8.24.0",
+    "zx": "^8.3.2"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -37,5 +48,8 @@
     "node-cache": "^5.1.2",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
