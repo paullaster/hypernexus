@@ -1,9 +1,9 @@
-import { Transport } from "./transport/Transport.js";
-import { CreateAuthHandler } from "./auth/AuthFactory.js";
-import { getConfig } from "./config/env.js";
-import { TransportError } from "./errors/TransportError.js";
-import { RateLimitError } from "./errors/RateLimitError.js";
-import { TimeoutError } from "./errors/TimeoutError.js";
+import { Transport } from "./src/transport/Transport.js";
+import { CreateAuthHandler } from "./src/auth/AuthFactory.js";
+import { getConfig } from "./src/config/env.js";
+import { TransportError } from "./src/errors/TransportError.js";
+import { RateLimitError } from "./src/errors/RateLimitError.js";
+import { TimeoutError } from "./src/errors/TimeoutError.js";
 
 // Load configuration from environment variables
 const { baseURL, authType, credentials } = getConfig();
