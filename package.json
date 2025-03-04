@@ -11,7 +11,7 @@
     "test:unit": "vitest run",
     "test:e2e": "vitest run --env=e2e",
     "test": "tsx tests/unit/test.mts",
-    "generate-docs": "typedoc --out docs src",
+    "generate-docs": "typedoc --out docs --entryPointStrategy expand ./",
     "lint": "eslint src --ext js,mjs,cjs,ts",
     "format": "prettier --write 'src/**/*.{js,mjs,cjs,ts}'",
     "release": "zx release.js",

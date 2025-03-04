@@ -1,6 +1,7 @@
 #!/usr/bin/env zx
 
 import { $, chalk, fs } from 'zx'; // ESM imports for "type": "module"
+import process from 'process';
 
 // Utility to run commands with error handling
 async function run(cmd, args = [], errorMsg) {
@@ -49,9 +50,31 @@ async function release() {
 
     // Tag and push to main
     console.log(chalk.blue(`Tagging release v${newVersion}...`));
+
+    // Ensure main branch is up-to-date
     await run('git', ['checkout', 'main'], 'Failed to switch back to main');
-    await run('git', ['merge', 'development'], 'Failed to merge development into main');
+    await run('git', ['pull', 'origin', 'main'], 'Failed to pull latest main branch');
+
+    // Merge development into main
+    try {
+        await $`git merge development --no-ff -m "Merge development into main for release v${newVersion}"`;
+    } catch (err) {
+        console.error(chalk.red('Merge conflict detected. Resolve conflicts and rerun the script.'));
+        console.error(err.stderr);
+        process.exit(1);
+    }
+
+    // Push main branch
     await run('git', ['push', 'origin', 'main'], 'Failed to push main branch');
+
+    // Check if tag already exists
+    const { stdout: existingTags } = await $`git tag -l v${newVersion}`;
+    if (existingTags.trim()) {
+        console.error(chalk.red(`Tag v${newVersion} already exists. Delete it or bump the version.`));
+        process.exit(1);
+    }
+
+    // Create and push tag
     await run('git', ['tag', `v${newVersion}`], 'Failed to create tag');
     await run('git', ['push', 'origin', '--tags'], 'Failed to push tags');
 

@@ -11,7 +11,10 @@ import { RateLimitError } from '../errors/RateLimitError.js';
 import { TimeoutError } from '../errors/TimeoutError.js';
 import { TransportError } from '../errors/TransportError.js';
 import { metrics } from '../utils/metrics.js';
+import { configDotenv } from 'dotenv';
 
+
+configDotenv();
 
 /**
  * Trnasport Config interfacace
@@ -49,7 +52,7 @@ export class Transport {
 
     constructor(config: TransportConfig, authHandler: AuthHandler) {
         this.baseURL = config.baseURL;
-        this.defaultCompany = config.company || '';
+        this.defaultCompany = config.company || process.env.BC_COMPANY_NAME || '';
         this.cache = new NodeCache({ stdTTL: config.cacheTTL || 300 });
         this.limiter = new Bottleneck({
             maxConcurrent: config.maxSockets || 100,
@@ -66,7 +69,7 @@ export class Transport {
         });
 
         this.axiosInstance.interceptors.request.use((config) => {
-            this.logger.debug({ url: config.url, method: config.method }, 'Outgoing requests');
+            this.logger.debug({ url: config.url, method: config.method, params: config.params }, 'Outgoing requests');
             if (config.params) {
                 config.params = {...config.params};
             }
@@ -200,7 +203,50 @@ export class Transport {
             throw new TransportError("Batch request failed", 500, error);
         }
     }
-    addMiddleware(middleware: (config: AxiosRequestConfig) => AxiosRequestConfig): void {
+
+
+    private prepareString(cummulative: string | undefined, key: string, value: any, isString:boolean = false): string { 
+        if (cummulative) {
+            if (isString) { 
+                cummulative += ` AND ${key} eq '${value}'`;
+            } else {
+                cummulative += ` AND ${key} eq ${value}`;
+            }
+        } else {
+            if (isString) { 
+                cummulative = `${key} eq '${value}'`;
+            } else {
+                cummulative = `${key} eq ${value}`;
+            }
+        }
+        return cummulative;
+    }
+
+    // Preparing BC 365 filter query from request query params
+    async filter(params: Record<string, any>): Promise<object | undefined> {
+        try {
+            if (typeof params === 'object') {
+                let filter: string = '';
+
+                for (const [key, value] of Object.entries(params)) {
+                    // get type of value
+                    const type = typeof value;
+                    if (type === 'string') { 
+                        filter += this.prepareString(filter, key, value, true);
+                    } else {
+                        filter += this.prepareString(filter, key, value);
+                    }
+                }
+                return {
+                    $filter: filter,
+                };
+            }
+            return undefined;
+        } catch (error) { 
+            throw new TransportError('Error preparing BC 365 filter query', 500, error);
+        }
+    }
+    private addMiddleware(middleware: (config: AxiosRequestConfig) => AxiosRequestConfig): void {
         this.middleware.push(middleware);
     }
     // Clear cache for specific key
