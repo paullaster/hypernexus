@@ -1,9 +1,9 @@
-#!/usr/bin / env zx
+#!/usr/bin/env zx
 
 import { $, chalk, fs } from 'zx'; // ESM imports for "type": "module"
 import process from 'process';
 
-// Utility to run commands with error handling
+// Utility to run commands with error handling 
 async function run(cmd, args = [], errorMsg) {
     try {
         await $`${[cmd, ...args]}`; // Pass as array for correct tokenization
@@ -12,35 +12,6 @@ async function run(cmd, args = [], errorMsg) {
         console.error(err.stderr);
         process.exit(1);
     }
-}
-
-// Bump version and ensure the tag doesn't already exist
-async function bumpVersion(versionType) {
-    let newVersion;
-    let attempts = 0;
-    const maxAttempts = 5; // Prevent infinite loops
-
-    while (attempts < maxAttempts) {
-        await run('npm', ['version', versionType, '-m', 'Release v%s'], `Failed to bump ${versionType} version`);
-        const packageJson = await fs.readJson('./package.json');
-        newVersion = packageJson.version;
-
-        // Check if the tag already exists
-        const { stdout: existingTags } = await $`git tag -l v${newVersion}`;
-        if (!existingTags.trim()) {
-            break; // Tag doesn't exist, proceed
-        }
-
-        console.log(chalk.yellow(`Tag v${newVersion} already exists. Bumping version again...`));
-        attempts++;
-    }
-
-    if (attempts >= maxAttempts) {
-        console.error(chalk.red(`Failed to find a unique version after ${maxAttempts} attempts.`));
-        process.exit(1);
-    }
-
-    return newVersion;
 }
 
 // Main release function
@@ -68,19 +39,13 @@ async function release() {
     // Bump version
     const versionType = process.argv.includes('--minor') ? 'minor' : process.argv.includes('--major') ? 'major' : 'patch';
     console.log(chalk.blue(`Bumping ${versionType} version...`));
-    const newVersion = await bumpVersion(versionType);
+    await run('npm', ['version', versionType, '-m', 'Release v%s'], `Failed to bump ${versionType} version`);
+    const packageJson = await fs.readJson('./package.json');
+    const newVersion = packageJson.version;
 
     // Push to development branch
     console.log(chalk.blue('Pushing to development branch...'));
     await run('git', ['checkout', '-B', 'development'], 'Failed to create/switch to development branch');
-
-    // Pull latest changes from development branch before force pushing
-    try {
-        await $`git pull origin development`;
-    } catch (err) {
-        console.log(chalk.yellow('No existing development branch or failed to pull. Proceeding with force push.'));
-    }
-
     await run('git', ['push', 'origin', 'development', '--force'], 'Failed to push to development branch');
 
     // Tag and push to main
@@ -101,6 +66,13 @@ async function release() {
 
     // Push main branch
     await run('git', ['push', 'origin', 'main'], 'Failed to push main branch');
+
+    // Check if tag already exists
+    const { stdout: existingTags } = await $`git tag -l v${newVersion}`;
+    if (existingTags.trim()) {
+        console.error(chalk.red(`Tag v${newVersion} already exists. Delete it or bump the version.`));
+        process.exit(1);
+    }
 
     // Create and push tag
     await run('git', ['tag', `v${newVersion}`], 'Failed to create tag');

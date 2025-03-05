@@ -205,21 +205,14 @@ export class Transport {
     }
 
 
-    private prepareString(cummulative: string | undefined, key: string, value: any, isString:boolean = false): string { 
-        if (cummulative) {
-            if (isString) { 
-                cummulative += ` AND ${key} eq '${value}'`;
+    private prepareString(key: string, value: any, isString:boolean = false): string { 
+            let query: string = ''
+            if (isString) {
+                query = `${key} eq '${value}'`;
             } else {
-                cummulative += ` AND ${key} eq ${value}`;
+                query = `${key} eq ${value}`;
             }
-        } else {
-            if (isString) { 
-                cummulative = `${key} eq '${value}'`;
-            } else {
-                cummulative = `${key} eq ${value}`;
-            }
-        }
-        return cummulative;
+        return query;
     }
 
     // Preparing BC 365 filter query from request query params
@@ -227,15 +220,18 @@ export class Transport {
         try {
             if (typeof params === 'object') {
                 let filter: string = '';
-
+                const queryarray = []
                 for (const [key, value] of Object.entries(params)) {
                     // get type of value
                     const type = typeof value;
                     if (type === 'string') { 
-                        filter += this.prepareString(filter, key, value, true);
+                        queryarray.push(this.prepareString(key, value, true));
                     } else {
-                        filter += this.prepareString(filter, key, value);
+                        queryarray.push(this.prepareString(key, value));
                     }
+                }
+                if (queryarray.length) {
+                    filter = queryarray.join(' and ');
                 }
                 return {
                     $filter: filter,
