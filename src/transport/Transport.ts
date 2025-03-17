@@ -73,6 +73,9 @@ export class Transport {
             if (config.params) {
                 config.params = { ...config.params };
             }
+            if (!config.params.company) {
+                config.params.company = this.defaultCompany
+            }
             return config;
         })
         // Reuest interceptor for retry logic
