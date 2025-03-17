@@ -81,7 +81,7 @@ export class Transport {
         // Reuest interceptor for retry logic
         this.axiosInstance.interceptors.response.use(async (response: AxiosResponse) => {
             this.logger.debug({
-                url: response.config.url,
+                url: response.config?.url,
                 status: response.status,
             }, 'Incoming response');
             return response
@@ -94,9 +94,9 @@ export class Transport {
                     message: error.message,
                 });
                 if (!config) {
-                    throw new TransportError(error.message, error.response?.status, error.response?.data);
+                    return new TransportError(error.message, error.response?.status, error.response?.data);
                 }
-                if (!config.retryCount) {
+                if (config.retryCount) {
                     config.retryCount = 0;
                 }
                 if (config.retryCount < 3) {
@@ -104,12 +104,12 @@ export class Transport {
                     return new Promise((resolve) => setTimeout(() => resolve(this.axiosInstance(config)), 1000));
                 }
                 if (error.response?.status === 429) {
-                    throw new RateLimitError('Rate limit exceeded', 429, error.response?.headers['Retry-After']);
+                    return new RateLimitError('Rate limit exceeded', 429, error.response?.headers['Retry-After']);
                 }
                 if (error.code === 'ECONNABORTED') {
                     throw new TimeoutError('Request timed out', 408, error);
                 }
-                throw new TransportError(error.message, error.response?.status, error.response?.data);
+                return new TransportError(error.message, error.response?.status, error.response?.data);
             })
     }
 
