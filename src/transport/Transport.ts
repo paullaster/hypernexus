@@ -198,10 +198,24 @@ export class Transport {
         }
     }
     // Batch Requests
-    async batch<T>(request: AxiosRequestConfig[]): Promise<T[]> {
+    /**
+     * 
+     * @param request AxiosRequestConfig. Pass qualified axios request configs
+     * @param dependent Boolean. default is false. Used to make resilient concurrent request or strict concurrent request where the requests depend on each other
+     * @returns Promise<T[]>
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
+     */
+    async batch<T>(request: AxiosRequestConfig[], dependent: boolean = false): Promise<T[]> {
         try {
-            const responses = await Promise.all(request.map(async (req) => await this.limitedRequest<T>(req)));
-            return responses;
+            if (dependent) {
+                return await Promise.all(request.map(async (req) => await this.limitedRequest<T>(req)));
+            } else {
+                const results = await Promise.allSettled(request.map(async (req) => await this.limitedRequest<T>(req)));
+                return results
+                    .filter((result): result is PromiseFulfilledResult<Awaited<T>> => result.status === 'fulfilled')
+                    .map(result => result.value);
+            }
         } catch (error) {
             throw new TransportError("Batch request failed", 500, error);
         }
