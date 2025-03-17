@@ -224,6 +224,7 @@ export class Transport {
                 let filter: string = '';
                 const queryarray = []
                 for (const [key, value] of Object.entries(params)) {
+                    if (!value) continue
                     // get type of value
                     const type = typeof value;
                     if (type === 'string') {
