@@ -22,21 +22,41 @@ transport.get('/api/publisher/grouping/v1/endpoint', {'$filter' : "record eq 're
 transport.get('/api/publisher/grouping/v1/endpoint', {'$filter' : "status eq 'Review'", '$select': "name, date, status, id"}, { headers: { 'Prefer': "maxpagesize=2"}});
 
 // A post request
-transport.post('/api/publisher/grouping/v1/endpoint', { firstName: 'Paullaster', lastName: 'X', description: 'nerd', others: 'creator, mars'}, {company: 'KTL'});
+transport.post('/api/publisher/grouping/v1/endpoint', { firstName: 'Paullaster', lastName: 'X', description: 'nerd', others: 'creator, mars'}, { params: {company: 'KTL'}});
 
 // A patch and put request
-transport.patch('/api/publisher/grouping/v1/endpoint', { user: 'victor', category: 'engineering', modified: true}, {company: 'KTL', primaryKey: ['id']});
+transport.patch('/api/publisher/grouping/v1/endpoint', { user: 'victor', category: 'engineering', modified: true}, { params: {company: 'KTL'}, primaryKey: ['id']});
 
 // A delete request
-transport.delete('/api/publisher/grouping/v1/endpoint', {}, {company: 'KTL', primaryKey: ['id']});
+transport.delete('/api/publisher/grouping/v1/endpoint', {}, { params: {company: 'KTL'}, primaryKey: ['id']});
 
 // Making a request to BC 365 ODATA functions
-transport.cu('/api/publisher/grouping/v1/endpoint', { docNo: 'nodejs'}, {company: 'KTL'}); 
+transport.cu('/api/publisher/grouping/v1/endpoint', { docNo: 'nodejs'}, {params: {company: 'KTL'}}); 
 // For odata functions, the company option is compulsory
 
 // Batch requests -> For multiple parallel requests.
 //The utility has built-in connection pooling configured : Batch request leverages connection pooling
 transport.batch([transport.get(), transport.get(), transport.get(),...kth])
+
+// prepared BC 365 filter query from an object
+ const filter = await transport.filter({
+            date_from: "2022-01-01",
+            date_to: '2022-01-01',
+            type: "",
+            priority: 2,
+            status: "Completed",
+    })
+    //response: {'$filter': "date_from eq 2022-01-01 and date_to eq 2022-01-01 and priority eq 2 and status eq 'Completed'"}
+
+    //NOTE!
+    //Errors resulting from the request are progated back as object values for the developer to handle.
+    // Example error response body: 
+    //{
+  //error: {
+  //  code: 'BadRequest_ResourceNotFound',
+  //  message: "Resource not found for the segment 'payrollAdvance'.  CorrelationId:  7fbe0bac-b30b-4c26-aa52-653622f9cce2."
+ // }
+//}
 
 ```
 
