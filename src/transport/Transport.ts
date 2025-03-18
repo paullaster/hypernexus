@@ -297,7 +297,7 @@ export class Transport {
             if (typeof payload[key] === 'string') {
                 return `${key}='${payload[key]}'`;
             }
-            return key = payload[key]
+            return key = `${key}=${payload[key]}`;
         });
         return keys;
     }
