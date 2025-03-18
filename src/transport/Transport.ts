@@ -71,7 +71,7 @@ export class Transport {
         this.axiosInstance.interceptors.request.use((config) => {
             this.logger.debug({ url: config.url, method: config.method, params: config.params }, 'Outgoing requests');
             if (config.params) {
-                config.params = {...config.params};
+                config.params = { ...config.params };
             }
             return config;
         })
@@ -205,16 +205,18 @@ export class Transport {
     }
 
 
-    private prepareString(key: string, value: any, isString:boolean = false): string { 
-            let query: string = ''
-            if (isString) {
-                query = `${key} eq '${value}'`;
-            } else {
-                query = `${key} eq ${value}`;
-            }
+    private prepareString(key: string, value: any, isString: boolean = false): string {
+        let query: string = ''
+        if (isString) {
+            query = `${key} eq '${value}'`;
+        } else {
+            query = `${key} eq ${value}`;
+        }
         return query;
     }
-
+    private isValidDate(dateString: string) {
+        return !isNaN(new Date(dateString).getTime())
+    }
     // Preparing BC 365 filter query from request query params
     async filter(params: Record<string, any>): Promise<object | undefined> {
         try {
@@ -222,10 +224,15 @@ export class Transport {
                 let filter: string = '';
                 const queryarray = []
                 for (const [key, value] of Object.entries(params)) {
+                    if (!value) continue
                     // get type of value
                     const type = typeof value;
-                    if (type === 'string') { 
-                        queryarray.push(this.prepareString(key, value, true));
+                    if (type === 'string') {
+                        if (this.isValidDate(value)) {
+                            queryarray.push(this.prepareString(key, value, false));
+                        } else {
+                            queryarray.push(this.prepareString(key, value, true));
+                        }
                     } else {
                         queryarray.push(this.prepareString(key, value));
                     }
@@ -238,7 +245,7 @@ export class Transport {
                 };
             }
             return undefined;
-        } catch (error) { 
+        } catch (error) {
             throw new TransportError('Error preparing BC 365 filter query', 500, error);
         }
     }
