@@ -107,7 +107,7 @@ export class Transport {
                     return new RateLimitError('Rate limit exceeded', 429, error.response?.headers['Retry-After']);
                 }
                 if (error.code === 'ECONNABORTED') {
-                    throw new TimeoutError('Request timed out', 408, error);
+                    return new TimeoutError('Request timed out', 408, error);
                 }
                 return new TransportError(error.message, error.response?.status, error.response?.data);
             })
