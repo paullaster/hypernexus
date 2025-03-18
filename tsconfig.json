@@ -109,5 +109,5 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": ["*.ts", "src/**/*.ts"],         // Include your TypeScript source files
-  "exclude": ["node_modules, dist, docs"]         // Exclude node_modules and dist
+  "exclude": ["./node_modules, ./dist, ./docs"]         // Exclude node_modules and dist
 }
