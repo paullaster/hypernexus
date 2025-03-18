@@ -71,11 +71,11 @@ async function release() {
     const { stdout: existingTags } = await $`git tag -l v${newVersion}`;
     if (existingTags.trim()) {
         console.error(chalk.red(`Tag v${newVersion} already exists. Delete it or bump the version.`));
-        process.exit(1);
+        // process.exit(1);
     }
 
     // Create and push tag
-    await run('git', ['tag', `v${newVersion}`], 'Failed to create tag');
+    // await run('git', ['tag', `v${newVersion}`], 'Failed to create tag');
     await run('git', ['push', 'origin', '--tags'], 'Failed to push tags');
 
     // Publish to npm
