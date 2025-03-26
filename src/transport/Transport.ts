@@ -322,6 +322,9 @@ export class Transport {
                     if (type === 'string') {
                         if (this.isValidDate(value)) {
                             queryarray.push(this.prepareString(key, value, false));
+                        }
+                        else if (this.isUUID(value)) {
+                            queryarray.push(this.prepareString(key, value, false));
                         } else {
                             queryarray.push(this.prepareString(key, value, true));
                         }
