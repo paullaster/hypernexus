@@ -364,15 +364,26 @@ export class Transport {
         const cacheKey = this.getCacheKey(endpoint, undefined, options);
         this.cache.del(cacheKey);
     }
+    private isUUID(str: string): boolean {
+        if (typeof str !== 'string') return false
+        const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+        return uuidRegex.test(str)
+    }
     private extractPrimaryKeys(payload: any, primaryKeys?: string[]): string[] {
         if (!primaryKeys) {
             throw new TransportError('Primary key property must be specified for PATCH, PUT, or DELETE requests.', 400);
         }
         const keys = primaryKeys.map((key) => {
             if (typeof payload[key] === 'string') {
+                if (this.isValidDate(payload[key])) {
+                    return `${key}=${payload[key]}`
+                }
+                if (this.isUUID(payload[key])) {
+                    return `${key}=${payload[key]}`
+                }
                 return `${key}='${payload[key]}'`;
             }
-            return key = `${key}=${payload[key]}`;
+            return `${key}=${payload[key]}`;
         });
         return keys;
     }
