@@ -288,8 +288,35 @@ export class Transport {
         }
         return query;
     }
-    private isValidDate(dateString: string) {
-        return !isNaN(new Date(dateString).getTime())
+    private isValidDateFormat(date: string): boolean {
+        const formats = ["YYYY-MM-DD", "DD-MM-YYYY", "YYYY-MM-DD HH:MM:SS"];
+        const len = date.length;
+        const format = formats.find((f: string) => f.length === len);
+        return !!format;
+    }
+    private getType(value: any) {
+        return Object.prototype.toString.call(value).slice(8, -1)
+    }
+    private knownDateCharacters(value: string): boolean {
+        const dateRegex = /^[0-9\s/\-:.,]+$/;
+        return dateRegex.test(value);
+    }
+    private isValidDate(dateString: string): boolean {
+        return this.knownDateCharacters(dateString) && this.isValidDateFormat(dateString) && (this.getType(dateString) === 'Date');
+    }
+    private strippedOffValue(value: any): boolean {
+        const type = this.getType(value);
+        let strippedOff = false;
+        switch (type) {
+            case 'Undefined':
+            case 'Null':
+                {
+                    strippedOff = true;
+                    break;
+                }
+
+        }
+        return strippedOff;
     }
     // Preparing BC 365 filter query from request query params
     /**
@@ -316,7 +343,7 @@ export class Transport {
                 let filter: string = '';
                 const queryarray = []
                 for (const [key, value] of Object.entries(params)) {
-                    if (!value) continue
+                    if (this.strippedOffValue(value)) continue
                     // get type of value
                     const type = typeof value;
                     if (type === 'string') {
