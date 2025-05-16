@@ -1,6 +1,6 @@
 {
   "name": "@brainspore/hypernexus",
-  "version": "5.1.7",
+  "version": "5.2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -19,7 +19,11 @@
     "release:minor": "zx release.js --minor",
     "release:major": "zx release.js --major"
   },
-  "keywords": ["Windows Authentication", "Nodejs", "Network Transport Wrapper"],
+  "keywords": [
+    "Windows Authentication",
+    "Nodejs",
+    "Network Transport Wrapper"
+  ],
   "author": "Paullaster Okoth",
   "license": "MIT",
   "description": "A lightWeight, robust and easily extensible HTTP(/2,/3)/HTTPS network transport utility",
@@ -45,5 +49,7 @@
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0"
   },
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }
