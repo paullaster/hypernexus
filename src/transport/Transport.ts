@@ -339,14 +339,14 @@ export class Transport {
      */
     filter(params: Record<string, any>): object | undefined {
         try {
-            if (typeof params === 'object') {
+            if (this.getType(params) === 'Object') {
                 let filter: string = '';
                 const queryarray = []
                 for (const [key, value] of Object.entries(params)) {
                     if (this.strippedOffValue(value)) continue
                     // get type of value
-                    const type = typeof value;
-                    if (type === 'string') {
+                    const type = this.getType(value);
+                    if (type === 'String') {
                         if (this.isValidDate(value)) {
                             queryarray.push(this.prepareString(key, value, false));
                         }

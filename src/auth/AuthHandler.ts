@@ -1,5 +1,5 @@
-import { AxiosInstance } from "axios";
-import { AxiosRequestConfig } from "axios-ntlm";
+import type { AxiosInstance } from "axios";
+import type { AxiosRequestConfig } from "axios-ntlm";
 
 /**
  * Auth Handler interface
