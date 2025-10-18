@@ -1,0 +1,1 @@
+chore(config): add .env.example and document env vars + oauth2 requirements in README
