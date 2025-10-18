@@ -1,8 +1,10 @@
 #Environment
 .env*
+!.env.example
 
 #Node modules
 node_modules
 
 # dist
 dist
+storage/logs/*

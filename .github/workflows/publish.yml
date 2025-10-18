@@ -1,0 +1,52 @@
+name: Publish package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'    # publish only on semver tag pushes like v1.2.3
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/@bs/HyperNexus
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Configure npm auth
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "NPM_TOKEN secret is not set. Aborting."
+            exit 1
+          fi
+          # setup-node will use NODE_AUTH_TOKEN for auth when publishing
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (if present)
+        run: |
+          if npm run -s | grep -q " build"; then
+            npm run build
+          else
+            echo "No build script found, skipping build"
+          fi
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          # publish package from the working-directory
+          npm publish --access public
