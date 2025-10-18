@@ -1,6 +1,6 @@
 {
   "name": "@brainspore/hypernexus",
-  "version": "5.2.0",
+  "version": "6.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -10,7 +10,7 @@
     "watch": "tsc --watch",
     "test:unit": "vitest run",
     "test:e2e": "vitest run --env=e2e",
-    "test": "tsx tests/unit/filter.test.mts",
+    "test": "tsx tests/unit/transport.get.test.mts",
     "generate-docs": "typedoc --out docs ",
     "lint": "eslint src -c js,mjs,cjs,ts",
     "format": "prettier --write 'src/**/*.{js,mjs,cjs,ts}'",
@@ -19,11 +19,7 @@
     "release:minor": "zx release.js --minor",
     "release:major": "zx release.js --major"
   },
-  "keywords": [
-    "Windows Authentication",
-    "Nodejs",
-    "Network Transport Wrapper"
-  ],
+  "keywords": ["Windows Authentication", "Nodejs", "Network Transport Wrapper"],
   "author": "Paullaster Okoth",
   "license": "MIT",
   "description": "A lightWeight, robust and easily extensible HTTP(/2,/3)/HTTPS network transport utility",
@@ -44,12 +40,12 @@
     "axios": "^1.7.9",
     "axios-ntlm": "^1.4.3",
     "bottleneck": "^2.19.5",
+    "bullmq": "^5.61.0",
     "dotenv": "^16.4.7",
+    "ioredis": "^5.8.1",
     "node-cache": "^5.1.2",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0"
   },
-  "files": [
-    "dist"
-  ]
+  "files": ["dist"]
 }

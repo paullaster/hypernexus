@@ -1,12 +1,12 @@
-import { NtlmClient, NtlmCredentials, AxiosRequestConfig } from "axios-ntlm";
-import { AxiosInstance } from 'axios';
+import { NtlmClient, type NtlmCredentials, type AxiosRequestConfig } from "axios-ntlm";
+import type { AxiosInstance } from 'axios';
 import { AuthHandler } from "../AuthHandler.js";
 
 /**
  * NTLM AUTHHANDLER
  */
 export class NTLMAuthHandler implements AuthHandler {
-    constructor(private config: NtlmCredentials) {}
+    constructor(private config: NtlmCredentials) { }
     authenticate(axiosConfig: AxiosRequestConfig): AxiosInstance {
         try {
             const client = NtlmClient(this.config, axiosConfig as AxiosRequestConfig);
