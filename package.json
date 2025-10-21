@@ -10,7 +10,7 @@
     "watch": "tsc --watch",
     "test:unit": "vitest run",
     "test:e2e": "vitest run --env=e2e",
-    "test": "tsx tests/unit/transport.get.test.mts",
+    "test": "tsx tests/unit/oauth2.test.mts",
     "generate-docs": "typedoc --out docs ",
     "lint": "eslint src -c js,mjs,cjs,ts",
     "format": "prettier --write 'src/**/*.{js,mjs,cjs,ts}'",

@@ -30,18 +30,20 @@ export interface RedisConfig {
 
 export class OAuth2Handler implements AuthHandler {
     private redisConnection: IORedis.Redis;
+    private accessToken: string | null;
     constructor(private config: OAuth2Config, private accessTokenURL: string, redisConfig: RedisConfig | null = null) {
         if (redisConfig) {
             this.redisConnection = new Redis(redisConfig);
         } else {
             this.redisConnection = new Redis();
         }
+        this.accessToken = null;
     }
     async getAccessToken(): Promise<string> {
-        let accessToken = null;
+        // let accessToken = null;
         const cachedAccessToken = await this.redisConnection.get('microsoft-bc-oauth2-access-token');
         if (cachedAccessToken) {
-            accessToken = cachedAccessToken;
+            this.accessToken = cachedAccessToken;
         } else {
             const params = new URLSearchParams({
                 ...this.config,
@@ -52,16 +54,15 @@ export class OAuth2Handler implements AuthHandler {
                 }
             });
             await this.redisConnection.set('microsoft-bc-oauth2-access-token', data.access_token, "EX", data.expires_in);
-            accessToken = data.access_token;
+            this.accessToken = data.access_token;
         }
-        return accessToken
+        return this.accessToken
     }
     authenticate(config: ThirdPartyAxiosRequestConfig): AxiosInstance {
-        const accessToken = this.getAccessToken();
         if (!config.headers) {
             config.headers = {};
         }
-        config.headers['Authorization'] = `Bearer ${accessToken}`;
+        config.headers['Authorization'] = `Bearer ${this.accessToken}`;
         config.headers['Accept'] = `application/json`;
         return axios.create(config as AxiosRequestConfig) as AxiosInstance;
     }

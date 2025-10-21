@@ -20,10 +20,14 @@ export function CreateAuthHandler(type: AuthTypes, credentials: Credentials, oat
         case 'ntlm':
             return new NTLMAuthHandler({ username: credentials.username, password: credentials.password, domain: credentials.domain || '' });
         case 'oauth2':
-            if (!oath2Config || !accesTokenURL) {
-                throw new Error("Invalid configuration for OAuth2 authentication mode");
+            {
+                if (!oath2Config || !accesTokenURL) {
+                    throw new Error("Invalid configuration for OAuth2 authentication mode");
+                }
+                const auth2Client = new OAuth2Handler(oath2Config, accesTokenURL, redisConfig);
+                auth2Client.getAccessToken();
+                return auth2Client;
             }
-            return new OAuth2Handler(oath2Config, accesTokenURL, redisConfig);
         default:
             throw new Error(`Unsupported authentication type: ${type}`);
     }

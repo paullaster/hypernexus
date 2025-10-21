@@ -11,6 +11,10 @@ const { baseURL, authType, credentials, oath2Config, redisConfig, accessTokenURL
 // Create an authentication handler
 const authHandler = CreateAuthHandler(authType, credentials, oath2Config, accessTokenURL, redisConfig);
 
+if (authType === 'oauth2') {
+    await authHandler.getAccessToken()
+}
+
 // Initialize the transport utility
 const transport = new Transport({ baseURL, cacheTTL: 600 }, authHandler);
 
