@@ -156,11 +156,13 @@ OAuth2 (when BC_AUTH_TYPE=oauth2)
 - The runtime token endpoint constructed by the app:
   - https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/token
 - Behavior & requirements:
+
   - The library will use the client credentials flow to obtain an access token for Business Central.
   - Ensure your Azure AD application has the Application permission to access Business Central and consented scopes matching the configured `MICROSOFT_DYNAMICS_SAS_SCOPE`.
   - Even when using OAuth2, BC_USERNAME and BC_PASSWORD must be present in the current code (they may be required by other parts or for fallbacks). Consider updating code if you want to make credentials optional for pure oauth2 flows.
 
-Redis (optional)
+  - For OAuth2 redis must be installed.
+    Redis (optional)
 
 - REDIS_HOST (default 127.0.0.1)
 - REDIS_PORT (default 6379)

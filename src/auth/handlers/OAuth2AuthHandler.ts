@@ -12,7 +12,7 @@ export interface OAuth2Config {
     grant_type: string;
 };
 
-interface OAuth2Response {
+export interface OAuth2Response {
     token_type: string;
     expires_in: number;
     ext_expires_in: number,
@@ -39,24 +39,31 @@ export class OAuth2Handler implements AuthHandler {
         }
         this.accessToken = null;
     }
-    async getAccessToken(): Promise<string> {
-        // let accessToken = null;
+    async getAccessToken(): Promise<OAuth2Response | null> {
+        let data = null;
         const cachedAccessToken = await this.redisConnection.get('microsoft-bc-oauth2-access-token');
+        data = {
+            token_type: 'client_credentials',
+            expires_in: 3599,
+            ext_expires_in: 3599,
+            access_token: cachedAccessToken,
+        } as OAuth2Response;
         if (cachedAccessToken) {
             this.accessToken = cachedAccessToken;
         } else {
             const params = new URLSearchParams({
                 ...this.config,
             });
-            const { data } = await axios.post<OAuth2Response>(this.accessTokenURL, params.toString(), {
+            const { data: tokenResponse } = await axios.post<OAuth2Response>(this.accessTokenURL, params.toString(), {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 }
             });
+            data = tokenResponse;
             await this.redisConnection.set('microsoft-bc-oauth2-access-token', data.access_token, "EX", data.expires_in);
             this.accessToken = data.access_token;
         }
-        return this.accessToken
+        return data
     }
     authenticate(config: ThirdPartyAxiosRequestConfig): AxiosInstance {
         if (!config.headers) {
