@@ -27,6 +27,7 @@ async function release() {
     console.log(chalk.blue('Cleaning and building...'));
     await run('rm', ['-rf', 'dist'], 'Failed to clean dist folder');
     await run('npm', ['run', 'build'], 'Build failed');
+    await run('npm', ['run', 'generate-docs'], 'Generate docs failed');
 
     // Check for uncommitted changes
     const { stdout: status } = await $`git status --porcelain`;
