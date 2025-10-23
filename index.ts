@@ -4,24 +4,13 @@ import { getConfig } from "./src/config/env.js";
 import { TransportError } from "./src/errors/TransportError.js";
 import { RateLimitError } from "./src/errors/RateLimitError.js";
 import { TimeoutError } from "./src/errors/TimeoutError.js";
-import { ExpressAdapter } from "@bull-board/express";
-import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
-import { createBullBoard } from "@bull-board/api";
-import express from "express";
-import { oauth2TokenQueue } from "./src/queues/OAuth2Token.js";
+import { ioRedisClient } from "./src/queues/OAuth2Token.js";
 import "./src/job/oauth2-token-generation-worker.js";
 import { scheduleAccessTokenRefresh } from "./src/queues/OAuth2Token.js";
+import { OAuth2Handler } from "./src/auth/handlers/OAuth2AuthHandler.js";
 
 
-const app = express();
 
-const serverAdapter = new ExpressAdapter();
-createBullBoard({
-    queues: [new BullMQAdapter(oauth2TokenQueue)],
-    serverAdapter,
-});
-serverAdapter.setBasePath("/admin/queues");
-app.use("/admin/queues", serverAdapter.getRouter());
 
 
 // Load configuration from environment variables
@@ -31,7 +20,28 @@ const { baseURL, authType, credentials, oath2Config, redisConfig, accessTokenURL
 const authHandler = CreateAuthHandler(authType, credentials, oath2Config, accessTokenURL, redisConfig);
 
 if (authType === 'oauth2') {
+    if (oath2Config && accessTokenURL) {
+        const oauth2Client = new OAuth2Handler(oath2Config, accessTokenURL, redisConfig);
+        try {
+            const data = await oauth2Client.getAccessToken();
+            if (data?.access_token && data?.expires_in) {
+                const expirationTime = data.expires_in - 10;
+                await ioRedisClient.del('next-job-time-for-oauth2-access-token');
+                await ioRedisClient.set(
+                    'next-job-time-for-oauth2-access-token',
+                    JSON.stringify(expirationTime),
+                    'EX',
+                    expirationTime
+                );
+            } else {
+                console.log("Invalid token");
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
     (async () => {
+
         await scheduleAccessTokenRefresh();
     })();
 }

@@ -9,7 +9,6 @@ const oauth2AccessTokenWorker = new Worker('oauth2-access-token-queue',
         const oauth2Client = new OAuth2Handler(config, accessTokenURL, redis);
         try {
             const data = await oauth2Client.getAccessToken();
-            console.log(data);
             if (data?.access_token && data?.expires_in) {
                 const expirationTime = data.expires_in - 10;
                 await ioRedisClient.set(

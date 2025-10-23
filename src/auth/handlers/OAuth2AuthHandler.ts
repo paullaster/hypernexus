@@ -60,6 +60,7 @@ export class OAuth2Handler implements AuthHandler {
                 }
             });
             data = tokenResponse;
+            await this.redisConnection.del('microsoft-bc-oauth2-access-token');
             await this.redisConnection.set('microsoft-bc-oauth2-access-token', data.access_token, "EX", data.expires_in);
             this.accessToken = data.access_token;
         }
