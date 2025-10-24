@@ -92,7 +92,7 @@ export class Transport {
     private defaultCompany: string;
     private cache: NodeCache;
     private limiter: Bottleneck;
-    private middleware: ((config: AxiosRequestConfig) => AxiosRequestConfig)[] = [];
+    private middleware: ((config: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>)[] = [];
     private axiosInstance: AxiosInstance;
     private logger: pino.Logger;
 
@@ -113,7 +113,6 @@ export class Transport {
             httpsAgent: new HttpsAgent({ maxSockets: config.maxSockets || 50, keepAlive: true }),
             httpAgent: new Agent({ maxSockets: config.maxSockets || 50, maxFreeSockets: config.maxFreeSockets || 20, keepAlive: true }),
         });
-
         this.axiosInstance.interceptors.request.use((config) => {
             this.logger.debug({ url: config.url, method: config.method, params: config.params }, 'Outgoing requests');
             if (config.params) {
@@ -371,8 +370,12 @@ export class Transport {
             return new TransportError('Error preparing BC 365 filter query', 500, error);
         }
     }
-    private addMiddleware(middleware: (config: AxiosRequestConfig) => AxiosRequestConfig): void {
+    public addMiddleware(middleware: (config: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>): void {
+        if (typeof middleware !== "function") {
+            throw new TypeError("Middleware must be a function.");
+        }
         this.middleware.push(middleware);
+
     }
     // Clear cache for specific key
     clearCache(endpoint: string, options?: RequestOptions): void {
@@ -423,7 +426,8 @@ export class Transport {
     private async request<T>(config: AxiosRequestConfig): Promise<T> {
         // Appy middleware
         for (const middleware of this.middleware) {
-            config = middleware(config);
+            console.log("test function");
+            config = await middleware(config);
         }
         try {
             const reponse = await this.axiosInstance.request<T>(config);
@@ -434,4 +438,6 @@ export class Transport {
             throw error;
         }
     }
+
+
 }
