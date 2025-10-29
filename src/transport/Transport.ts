@@ -118,8 +118,30 @@ export class Transport {
             if (config.params) {
                 config.params = { ...config.params };
             }
-            if (!config.params.company) {
-                config.params.company = this.defaultCompany
+            config.headers = config.headers ?? {};
+            const companyParamCommand = config.headers['X-Custom-Params-Company-Command'];
+
+            switch (companyParamCommand) {
+                case 'Set': {
+                    if (!config.params.company) {
+                        config.params.company = this.defaultCompany;
+                    }
+                    break;
+                };
+                case 'Skip': {
+                    break
+                }
+                case 'Remove': {
+                    if (config.params.company) {
+                        delete config.params.company;
+                    }
+                    break;
+                }
+                default: {
+                    if (!config.params.company) {
+                        config.params.company = this.defaultCompany;
+                    }
+                }
             }
             return config;
         })
@@ -183,15 +205,15 @@ export class Transport {
     }
     async patch<T>(endpoint: string, payload?: any, options?: RequestOptions): Promise<T> {
         try {
-            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKey);
+            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKeys);
             const url = `${endpoint}(${primaryKeys.join(',')})`;
             if (options?.headers) {
                 options.headers['If-Match'] = "*";
             } else {
                 options = { ...options, headers: { 'If-Match': "*" } };
             }
-            if (options.primaryKey) {
-                for (const key of options.primaryKey) {
+            if (options.primaryKeys) {
+                for (const key of options.primaryKeys) {
                     delete payload[key];
                 }
             }
@@ -202,15 +224,15 @@ export class Transport {
     }
     async put<T>(endpoint: string, payload?: any, options?: RequestOptions): Promise<T> {
         try {
-            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKey);
+            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKeys);
             const url = `${endpoint}(${primaryKeys.join(',')})`;
             if (options?.headers) {
                 options.headers['If-Match'] = "*";
             } else {
                 options = { ...options, headers: { 'If-Match': "*" } };
             }
-            if (options.primaryKey) {
-                for (const key of options.primaryKey) {
+            if (options.primaryKeys) {
+                for (const key of options.primaryKeys) {
                     delete payload[key];
                 }
             }
@@ -222,7 +244,7 @@ export class Transport {
     async delete<T>(endpoint: string, payload?: any, options?: RequestOptions): Promise<T> {
         try {
             this.invalidateCache(endpoint, options);
-            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKey);
+            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKeys);
             const url = `${endpoint}(${primaryKeys.join(',')})`;
             if (options?.headers) {
                 options.headers['If-Match'] = "*";
