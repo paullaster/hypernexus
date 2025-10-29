@@ -118,8 +118,30 @@ export class Transport {
             if (config.params) {
                 config.params = { ...config.params };
             }
-            if (!config.params.company) {
-                config.params.company = this.defaultCompany
+            config.headers = config.headers ?? {};
+            const companyParamCommand = config.headers['X-Custom-Params-Company-Command'];
+
+            switch (companyParamCommand) {
+                case 'Set': {
+                    if (!config.params.company) {
+                        config.params.company = this.defaultCompany;
+                    }
+                    break;
+                };
+                case 'Skip': {
+                    break
+                }
+                case 'Remove': {
+                    if (config.params.company) {
+                        delete config.params.company;
+                    }
+                    break;
+                }
+                default: {
+                    if (!config.params.company) {
+                        config.params.company = this.defaultCompany;
+                    }
+                }
             }
             return config;
         })
