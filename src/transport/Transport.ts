@@ -183,15 +183,15 @@ export class Transport {
     }
     async patch<T>(endpoint: string, payload?: any, options?: RequestOptions): Promise<T> {
         try {
-            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKey);
+            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKeys);
             const url = `${endpoint}(${primaryKeys.join(',')})`;
             if (options?.headers) {
                 options.headers['If-Match'] = "*";
             } else {
                 options = { ...options, headers: { 'If-Match': "*" } };
             }
-            if (options.primaryKey) {
-                for (const key of options.primaryKey) {
+            if (options.primaryKeys) {
+                for (const key of options.primaryKeys) {
                     delete payload[key];
                 }
             }
@@ -202,15 +202,15 @@ export class Transport {
     }
     async put<T>(endpoint: string, payload?: any, options?: RequestOptions): Promise<T> {
         try {
-            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKey);
+            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKeys);
             const url = `${endpoint}(${primaryKeys.join(',')})`;
             if (options?.headers) {
                 options.headers['If-Match'] = "*";
             } else {
                 options = { ...options, headers: { 'If-Match': "*" } };
             }
-            if (options.primaryKey) {
-                for (const key of options.primaryKey) {
+            if (options.primaryKeys) {
+                for (const key of options.primaryKeys) {
                     delete payload[key];
                 }
             }
@@ -222,7 +222,7 @@ export class Transport {
     async delete<T>(endpoint: string, payload?: any, options?: RequestOptions): Promise<T> {
         try {
             this.invalidateCache(endpoint, options);
-            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKey);
+            const primaryKeys = this.extractPrimaryKeys(payload, options?.primaryKeys);
             const url = `${endpoint}(${primaryKeys.join(',')})`;
             if (options?.headers) {
                 options.headers['If-Match'] = "*";
