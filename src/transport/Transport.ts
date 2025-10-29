@@ -36,7 +36,7 @@ export interface RequestOptions {
     data?: never;
     headers?: Record<string, string>;
     params?: never;
-    primaryKey?: [string],
+    primaryKeys?: string[],
     useCache?: boolean;
 };
 
@@ -426,7 +426,6 @@ export class Transport {
     private async request<T>(config: AxiosRequestConfig): Promise<T> {
         // Appy middleware
         for (const middleware of this.middleware) {
-            console.log("test function");
             config = await middleware(config);
         }
         try {
