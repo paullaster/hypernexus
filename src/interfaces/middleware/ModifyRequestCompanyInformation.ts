@@ -2,8 +2,8 @@
 import { AxiosRequestConfig } from "axios";
 
 export const modifyRequestCompanyConfig = (environmentConf: { companyName: string | undefined; companyId: string | undefined }) => (config: AxiosRequestConfig<any>) => {
-    const company = config?.headers?.['X-Custom-Request-Company'];
-    const whichCompanyIdentifier = config?.headers?.['X-Custom-Request-Company-Identifier'];
+    const company = config?.headers?.['X-Custom-Request-Company'] ?? config?.headers?.['x-custom-request-company'];
+    const whichCompanyIdentifier = config?.headers?.['X-Custom-Request-Company-Identifier'] ?? config?.headers?.['X-Custom-Request-Company-Identifier'];
     config.headers = config.headers ?? {}
     if (company) {
         if (whichCompanyIdentifier) {
