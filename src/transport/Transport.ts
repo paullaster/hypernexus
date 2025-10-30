@@ -117,6 +117,8 @@ export class Transport {
             this.logger.debug({ url: config.url, method: config.method, params: config.params }, 'Outgoing requests');
             if (config.params) {
                 config.params = { ...config.params };
+            } else {
+                config.params = {};
             }
             config.headers = config.headers ?? {};
             const companyParamCommand = config.headers['X-Custom-Params-Company-Command'];
