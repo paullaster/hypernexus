@@ -4,6 +4,7 @@ import { getConfig } from "./src/config/env.js";
 import { TransportError } from "./src/errors/TransportError.js";
 import { RateLimitError } from "./src/errors/RateLimitError.js";
 import { TimeoutError } from "./src/errors/TimeoutError.js";
+import { modifyRequestCompanyConfig } from "./src/interfaces/middleware/ModifyRequestCompanyInformation.js";
 
 
 
@@ -18,73 +19,28 @@ const authHandler = CreateAuthHandler(authType, credentials, oath2Config, access
 // Initialize the transport utility
 const transport = new Transport({ baseURL, cacheTTL: 600 }, authHandler);
 
-transport.addMiddleware(async (config) => {
-    const token = await authHandler.getAccessToken();
-    if (!token) return config;
-    if (!config.headers) {
-        config.headers = {};
-    }
-    config.headers['Authorization'] = `Bearer ${token}`;
-    return config;
-});
 
-transport.addMiddleware(async (config) => {
-    const company = config?.headers?.['X-Custom-Request-Company'];
-    const whichCompanyIdentifier = config?.headers?.['X-Custom-Request-Company-Identifier'];
-    config.headers = config.headers ?? {}
-    if (company) {
-        if (whichCompanyIdentifier) {
-            switch (whichCompanyIdentifier) {
-                case 'Company-Name': {
-                    config.params = config.params ?? {};
-                    config.params.company = company;
-                    config.headers['X-Custom-Params-Company-Command'] = 'Skip'
-                    break;
-                };
-                case 'Company-Id': {
-                    const splittedUrl = config?.url?.split("/");
-                    if (splittedUrl && Array.isArray(splittedUrl)) {
-                        const last = splittedUrl[splittedUrl.length - 1];
-                        const url = `${splittedUrl.slice(0, -1).join("/")}/companies(${company})/${last}`;
-                        config.url = url;
-                        config.headers = config.headers ?? {}
-                        config.headers['X-Custom-Params-Company-Command'] = 'Remove'
-                    }
-                    break;
-                };
-                default: {
-                    config.headers['X-Custom-Params-Company-Command'] = 'Set'
-                }
-            }
+if (authType === 'oauth2' && !oath2Config && !accessTokenURL && !redisConfig) {
+    throw new Error("[OAuth2]: Invalid OAuth2 configuration in the environment file.", {
+        cause: 'Invalid Configuration',
+    });
+}
+
+if (authType === 'oauth2') {
+    transport.addMiddleware(async (config) => {
+        const token = await authHandler.getAccessToken();
+        if (!token) return config;
+        if (!config.headers) {
+            config.headers = {};
         }
-    } else {
-        if (whichCompanyIdentifier) {
-            switch (whichCompanyIdentifier) {
-                case 'Company-Name': {
-                    config.params = config.params ?? {};
-                    config.params.company = companyName;
-                    config.headers['X-Custom-Params-Company-Command'] = 'Skip'
-                    break;
-                };
-                case 'Company-Id': {
-                    const splittedUrl = config?.url?.split("/")
-                    if (splittedUrl && Array.isArray(splittedUrl)) {
-                        const last = splittedUrl[splittedUrl.length - 1];
-                        const url = `${splittedUrl.slice(0, -1).join("/")}/companies(${companyId})/${last}`;
-                        config.url = url;
-                        config.headers = config.headers ?? {}
-                        config.headers['X-Custom-Params-Company-Command'] = 'Remove'
-                    }
-                    break;
-                };
-                default: {
-                    config.headers['X-Custom-Params-Company-Command'] = 'Set'
-                }
-            }
-        }
-    }
-    return config;
-});
+        config.headers['Authorization'] = `Bearer ${token}`;
+        return config;
+    });
+}
+
+transport.addMiddleware(modifyRequestCompanyConfig({ companyName, companyId }));
+
+
 export {
     Transport,
     CreateAuthHandler,
