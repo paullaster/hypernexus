@@ -3,7 +3,7 @@ import { AxiosRequestConfig } from "axios";
 
 export const modifyRequestCompanyConfig = (environmentConf: { companyName: string | undefined; companyId: string | undefined }) => (config: AxiosRequestConfig<any>) => {
     const company = config?.headers?.['X-Custom-Request-Company'] ?? config?.headers?.['x-custom-request-company'];
-    const whichCompanyIdentifier = config?.headers?.['X-Custom-Request-Company-Identifier'] ?? config?.headers?.['X-Custom-Request-Company-Identifier'];
+    const whichCompanyIdentifier = config?.headers?.['X-Custom-Request-Company-Identifier'] ?? config?.headers?.['x-custom-request-company-identifier'];
     config.headers = config.headers ?? {}
     if (company) {
         if (whichCompanyIdentifier) {
@@ -23,6 +23,11 @@ export const modifyRequestCompanyConfig = (environmentConf: { companyName: strin
                         config.headers = config.headers ?? {}
                         config.headers['X-Custom-Params-Company-Command'] = 'Remove'
                     }
+                    break;
+                };
+                case 'Url-Complete': {
+                    config.headers = config.headers ?? {};
+                    config.headers['X-Custom-Params-Company-Command'] = 'Remove';
                     break;
                 };
                 default: {
@@ -48,6 +53,11 @@ export const modifyRequestCompanyConfig = (environmentConf: { companyName: strin
                         config.headers = config.headers ?? {}
                         config.headers['X-Custom-Params-Company-Command'] = 'Remove'
                     }
+                    break;
+                };
+                case 'Url-Complete': {
+                    config.headers = config.headers ?? {};
+                    config.headers['X-Custom-Params-Company-Command'] = 'Remove';
                     break;
                 };
                 default: {

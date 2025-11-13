@@ -31,13 +31,11 @@ export interface TransportConfig {
 /**
  * Request Options Interface
  */
-export interface RequestOptions {
+export interface RequestOptions extends AxiosRequestConfig {
     company?: string;
-    data?: never;
-    headers?: Record<string, string>;
-    params?: never;
     primaryKeys?: string[],
     useCache?: boolean;
+    cacheTTL?: number,
 };
 
 /**
@@ -193,7 +191,11 @@ export class Transport {
         }
         const response = await this.limitedRequest<T>({ method: 'GET', url: endpoint, params: queryParams, ...options });
         if (options?.useCache) {
-            this.cache.set(cacheKey, response);
+            if (['Null', 'Undefined'].includes(this.getType(options.cacheTTL))) {
+                this.cache.set(cacheKey, response)
+            } else {
+                this.cache.set(cacheKey, response, options.cacheTTL!);
+            }
         }
         return response;
     }
@@ -401,13 +403,26 @@ export class Transport {
         this.middleware.push(middleware);
 
     }
-    // Clear cache for specific key
-    clearCache(endpoint: string, options?: RequestOptions): void {
+
+    /**
+     * Clear cache for specific key
+     * 
+     * @param endpoint - this is the endpoint specified in the get request  i.e transport.get(endpoind)
+     * @param params -   params passed as the second option argument to a get request  i.e transport.get(_, params)
+     * @param options -  additional options , always useful when want to specify company that was use to get the request explicitly, if not specified, the defaul company is used. If the environment config variable BC_COMPANY_USE was set to Url-Complete this third argument is not useful.
+     * 
+     * @example
+     * ```typescript
+     * transport.clearCache('/api/publisher/api-group/v2.0/customers', {'$filter': 'customerNo eq `0000021`'}, {company: 'xyz'});
+     * ```
+     */
+    public clearCache(endpoint: string, params: Record<string, any>, options?: RequestOptions): void {
         const cacheKey = this.getCacheKey(endpoint, undefined, options);
         this.cache.del(cacheKey);
     }
+
     // Clear all cache
-    clearAllCaches(): void {
+    public clearAllCaches(): void {
         this.cache.flushAll();
     }
     // Cache managment
@@ -418,7 +433,7 @@ export class Transport {
     }
     // Invalidate cache
     private invalidateCache(endpoint: string, options?: RequestOptions): void {
-        const cacheKey = this.getCacheKey(endpoint, undefined, options);
+        const cacheKey = this.getCacheKey(endpoint, options?.params, options);
         this.cache.del(cacheKey);
     }
     private isUUID(str: string): boolean {
