@@ -360,12 +360,3 @@ public `git clone https://github.com/paullaster/hypernexus.git`
 Buy me a coffee
 
 [:coffee:](https://github.com/paullaster)
-
-## Changelog
-
-- docs(readme): document per-request company override headers and examples
-  - Added documentation for the two request headers used to override company context per request:
-    - X-Custom-Request-Company-Identifier (values: Company-Name, Company-Id, Url-Complete)
-    - X-Custom-Request-Company (the corresponding value)
-  - Included precedence rules, usage examples, and a reference to src/interfaces/middleware/ModifyRequestCompanyInformation.ts
-  - Commit message: "docs(readme): document per-request company override headers and examples"
