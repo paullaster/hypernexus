@@ -88,9 +88,139 @@ const filter = await transport.filter({
 
 ## What it offers
 
-Built-in caching for redandant request
-connection pooling
-Performance monitoring
+##### Built-in caching for redandant request
+
+Setting cache
+
+```ts
+
+
+/**
+*
+*Instruct a get request to cache response for successive get request
+*
+*/
+
+transport.get('endpoint', params, {useCache: true, ...});
+
+/**
+*
+* By default cacheTTL is set to 300.
+* You can modify this with you custom request config
+*
+*/
+
+transport.get('endpoint', params, {useCache: true, cacheTTL: 600, ...});
+
+/**
+*
+* Clear cache specific cache like
+*
+*/
+transport.clearCache('endpoint', params, {...});  // - you can specify company in the third argument option
+
+
+/**
+*
+* Flush the entire cache
+*
+*/
+transport.clearAllCaches();
+
+```
+
+##### Connection Pooling
+
+##### Performance monitoring
+
+##### Request Context Company
+
+You can leverage request context company config per request by adding two special headers. These headers let you override the package-level company settings (from env or global config) only for that single outgoing request — the global configuration is not mutated.
+
+Header names (exact strings)
+
+- X-Custom-Request-Company-Identifier
+- X-Custom-Request-Company
+
+Identifier values supported (case-sensitive strings as shown)
+
+- Company-Name -> the human/company name used in your environment (e.g. "KTL")
+- Company-Id -> the company GUID or id (e.g. "083db09a-ff98-f011-a7b2-6045bdacc0b6")
+- Url-Complete -> a full/partial URL or path segment when your API requires a complete URL override
+
+Behavior & precedence
+
+- If these headers are present on a request the middleware (see src/interfaces/middleware/ModifyRequestCompanyInformation.ts) will use them to construct/override the company-related information for that request.
+- Headers take precedence over:
+  - the global env/config values (BC_COMPANY_NAME, BC_COMPANY_ID, BC_COMPANY_USE)
+  - request params.company when the middleware requires a header-form override
+- The override is scoped to the single request and does not change global configuration or subsequent requests.
+
+Examples
+
+1. Override by Company-Id (common case)
+
+```ts
+// override using company GUID
+const response = (await transport.get(
+  "/api/publisher/group/v1.0/leaveEmployees",
+  {},
+  {
+    headers: {
+      Prefer: "maxpagesize=2",
+      "X-Custom-Request-Company-Identifier": "Company-Id",
+      "X-Custom-Request-Company": "company-id"
+    }
+  }
+)) as Response;
+```
+
+2. Override by Company-Name
+
+```ts
+// override using company name
+const response = await transport.post(
+  "/api/publisher/grouping/v1/endpoint",
+  {
+    /* body */
+  },
+  {
+    headers: {
+      "X-Custom-Request-Company-Identifier": "Company-Name",
+      "X-Custom-Request-Company": "KTL"
+    }
+  }
+);
+```
+
+3. Override by Url-Complete
+
+```ts
+// when the API expects a full/complete company URL segment
+const response = await transport.get(
+  "/api/some/endpoint",
+  {},
+  {
+    headers: {
+      "X-Custom-Request-Company-Identifier": "Url-Complete"
+    }
+  }
+);
+```
+
+Alternative: params-based company (existing approach)
+
+- You can still use the params object when appropriate:
+
+```ts
+transport.get("/api/endpoint", {}, { params: { company: "KTL" } });
+```
+
+- Use the header approach when you need a per-request override that the middleware will transform consistently.
+
+Implementation reference
+
+- See src/interfaces/middleware/ModifyRequestCompanyInformation.ts for the exact runtime behavior and how header values are applied to the outgoing request.
 
 ### Setup this project locally
 
@@ -106,6 +236,7 @@ BC_API_BASE_URL="https://domain:port/instance"
 BC_AUTH_TYPE=ntlm
 BC_COMPANY_NAME="CompanyName"
 BC_COMPANY_ID="companyId"
+BC_COMPANY_USE='Company-Name' // Default value is: Company-Name, other possible Values are : Company-Id, Url-Complete
 BC_USERNAME="username"
 BC_PASSWORD="userPassword"
 BC_DOMAIN=
@@ -229,3 +360,12 @@ public `git clone https://github.com/paullaster/hypernexus.git`
 Buy me a coffee
 
 [:coffee:](https://github.com/paullaster)
+
+## Changelog
+
+- docs(readme): document per-request company override headers and examples
+  - Added documentation for the two request headers used to override company context per request:
+    - X-Custom-Request-Company-Identifier (values: Company-Name, Company-Id, Url-Complete)
+    - X-Custom-Request-Company (the corresponding value)
+  - Included precedence rules, usage examples, and a reference to src/interfaces/middleware/ModifyRequestCompanyInformation.ts
+  - Commit message: "docs(readme): document per-request company override headers and examples"
