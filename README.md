@@ -139,9 +139,8 @@ Important environment variables (consumed by src/config/env.ts):
 
 Credentials:
 
-- BC_USERNAME and BC_PASSWORD (required by code)
-  - The app throws on startup if these are empty. They are used for NTLM/basic flows.
-  - Note: current code requires these fields to be present even when `oauth2` is selected.
+- BC_USERNAME and BC_PASSWORD
+  - They are required for NTLM/basic flows.
 - BC_DOMAIN
   - Optional, used for NTLM.
 
