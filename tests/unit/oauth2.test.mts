@@ -3,7 +3,14 @@ import { transport } from "../../index.ts";
 
 async function runTest() {
     try {
-        const response = await transport.get("/api/nurture/ESS/v1.0/leavemployees", {}, {
+        // const response = await transport.get("/api/nurture/ESS/v1.0/companies(083db09a-ff98-f011-a7b2-6045bdacc0b6)/leaveEmployees", {}, {
+        //     headers: {
+        //         'Prefer': "maxpagesize=2",
+        //         // 'X-Custom-Request-Company-Identifier': 'Company-Id',
+        //         // 'X-Custom-Request-Company': "083db09a-ff98-f011-a7b2-6045bdacc0b6"
+        //     }
+        // }) as Response;
+        const response = await transport.get("/api/nurture/ESS/v1.0/leaveEmployees", {}, {
             headers: {
                 'Prefer': "maxpagesize=2",
                 'X-Custom-Request-Company-Identifier': 'Company-Id',

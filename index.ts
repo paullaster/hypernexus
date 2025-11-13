@@ -5,19 +5,27 @@ import { TransportError } from "./src/errors/TransportError.js";
 import { RateLimitError } from "./src/errors/RateLimitError.js";
 import { TimeoutError } from "./src/errors/TimeoutError.js";
 import { modifyRequestCompanyConfig } from "./src/interfaces/middleware/ModifyRequestCompanyInformation.js";
+import { setRuntimeCompanyConfigHeaders } from "./src/interfaces/middleware/SetRuntimeCompanyConfigHeaders.js";
 
 
 
 
 
 // Load configuration from environment variables
-const { baseURL, authType, credentials, oath2Config, redisConfig, accessTokenURL, companyName, companyId } = getConfig();
+const { baseURL, authType, credentials, oath2Config, redisConfig, accessTokenURL, companyName, companyId, companyUse } = getConfig();
 
 // Create an authentication handler
 const authHandler = CreateAuthHandler(authType, credentials, oath2Config, accessTokenURL, redisConfig);
 
+
+const companyPreferIdentifier: { [key: string]: string | undefined } = {
+    'Company-Name': companyName,
+    'Company-Id': companyId,
+    'Url-Complete': 'complete-url',
+};
+
 // Initialize the transport utility
-const transport = new Transport({ baseURL, cacheTTL: 600 }, authHandler);
+const transport = new Transport({ company: companyPreferIdentifier[companyUse], baseURL, cacheTTL: 600 }, authHandler);
 
 
 if (authType === 'oauth2' && !oath2Config && !accessTokenURL && !redisConfig) {
@@ -37,6 +45,8 @@ if (authType === 'oauth2') {
         return config;
     });
 }
+
+transport.addMiddleware(setRuntimeCompanyConfigHeaders({ companyName, companyId, companyUse }));
 
 transport.addMiddleware(modifyRequestCompanyConfig({ companyName, companyId }));
 
