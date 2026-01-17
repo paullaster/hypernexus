@@ -6,6 +6,7 @@ import { RateLimitError } from "./src/errors/RateLimitError.js";
 import { TimeoutError } from "./src/errors/TimeoutError.js";
 import { modifyRequestCompanyConfig } from "./src/interfaces/middleware/ModifyRequestCompanyInformation.js";
 import { setRuntimeCompanyConfigHeaders } from "./src/interfaces/middleware/SetRuntimeCompanyConfigHeaders.js";
+import { ReturnCountOnlyWithCountHeaderDirective } from "./src/interfaces/middleware/ReturnCountOnlyWithODataCountQuery.js";
 
 
 
@@ -49,6 +50,8 @@ if (authType === 'oauth2') {
 transport.addMiddleware(setRuntimeCompanyConfigHeaders({ companyName, companyId, companyUse }));
 
 transport.addMiddleware(modifyRequestCompanyConfig({ companyName, companyId }));
+
+transport.addMiddleware(ReturnCountOnlyWithCountHeaderDirective());
 
 
 export {

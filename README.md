@@ -222,6 +222,130 @@ Implementation reference
 
 - See src/interfaces/middleware/ModifyRequestCompanyInformation.ts for the exact runtime behavior and how header values are applied to the outgoing request.
 
+##### OData Count Query Middleware
+
+This middleware enables efficient counting of OData entities without retrieving the actual data, leveraging Microsoft OData 365's `$count` query parameter. It allows users to return only the count of matching records, leaving the `value` array empty, which is particularly useful for performance-critical scenarios where you only need the total number of items.
+
+###### How It Works
+
+The `ReturnCountOnlyWithODataCountQuery` middleware (see src/interfaces/middleware/ReturnCountOnlyWithODataCountQuery.ts) intercepts outgoing requests and checks for a custom `count` header. If the header is present and set to `true` (case-insensitive), it automatically appends `/$count` to the request URL. This transforms the request into an OData count query, instructing the server to return only the count of matching entities instead of the full dataset.
+
+###### Usage with the Count Header
+
+To use this middleware, simply add the `count` header to your request configuration:
+
+```ts
+// Using the count header to get only the count
+const response = await transport.get(
+  "/api/publisher/grouping/v1/endpoint",
+  { $filter: "status eq 'Active'" },
+  {
+    headers: {
+      "count": "true"
+    }
+  }
+);
+
+// Response will be a number representing the count, e.g., 42
+console.log(response); // 42
+```
+
+The middleware handles case-insensitive header values (`count`, `Count`, etc.) and accepts both string and boolean values.
+
+###### Combining with Other Options
+
+You can combine the `count` header with other OData query options for more precise counting:
+
+```ts
+// Count with filtering and additional query parameters
+const response = await transport.get(
+  "/api/publisher/grouping/v1/endpoint",
+  {
+    $filter: "status eq 'Active' and date gt 2023-01-01T00:00:00Z",
+    $select: "id,name"  // Even with $select, only count is returned
+  },
+  {
+    headers: {
+      "count": "true",
+      "Prefer": "maxpagesize=1000"  // Other headers work normally
+    }
+  }
+);
+```
+
+Note that when using the `count` header, other query parameters like `$select`, `$expand`, etc., are still sent to the server but the response will only contain the count.
+
+###### Alternative: Manual Query Parameters (Without Middleware)
+
+If you prefer not to use the `count` header, you can achieve the same result by manually adding `$count=true` to your query parameters and setting `$top=0` to ensure no actual data rows are returned:
+
+```ts
+// Manual approach using query parameters
+const response = await transport.get(
+  "/api/publisher/grouping/v1/endpoint",
+  {
+    $filter: "status eq 'Active'",
+    $count: "true",  // Explicitly request count
+    $top: "0"        // Ensure no data rows are returned
+  }
+);
+
+// Response structure: { "@odata.count": 42, "value": [] }
+console.log(response); // { "@odata.count": 42, "value": [] }
+```
+
+This alternative gives you more control but requires manual parameter management.
+
+###### Value and Benefits
+
+Using the count functionality provides several advantages:
+
+1. **Performance**: Significantly reduces response size and processing time by avoiding data transfer.
+2. **Bandwidth Efficiency**: Ideal for mobile applications or limited bandwidth scenarios.
+3. **Quick Validation**: Quickly check if records exist without fetching them.
+4. **Pagination Support**: Combine with filtering to get accurate counts for paginated datasets.
+
+Compared to fetching full datasets and checking `response.value.length`, this approach:
+- Reduces server load and response time
+- Minimizes network traffic
+- Provides accurate counts even with large datasets
+- Works consistently across different OData implementations
+
+###### Complete Example Comparison
+
+```ts
+// Scenario: Check how many active users exist
+
+// Method 1: Using count header (recommended)
+const countOnly = await transport.get(
+  "/api/publisher/grouping/v1/endpoint",
+  { $filter: "status eq 'Active'" },
+  { headers: { "count": "true" } }
+);
+console.log(`Active users count: ${countOnly}`); // Active users count: 42
+
+// Method 2: Manual query parameters
+const fullResponse = await transport.get(
+  "/api/publisher/grouping/v1/endpoint",
+  {
+    $filter: "status eq 'Active'",
+    $count: "true",
+    $top: "0"
+  }
+);
+console.log(`Active users count: ${fullResponse['@odata.count']}`); // Active users count: 42
+
+// Method 3: Traditional approach (less efficient)
+const traditional = await transport.get(
+  "/api/publisher/grouping/v1/endpoint",
+  { $filter: "status eq 'Active'" }
+);
+console.log(`Active users count: ${traditional.value.length}`); // Active users count: 42
+// But this transfers all user data unnecessarily!
+```
+
+The middleware approach (Method 1) is the most efficient and clean, while Method 2 provides the same result without middleware dependency.
+
 ### Setup this project locally
 
 ### Configuration (Environment variables)
