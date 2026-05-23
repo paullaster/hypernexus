@@ -112,7 +112,6 @@ export class Transport {
             httpAgent: new Agent({ maxSockets: config.maxSockets || 50, maxFreeSockets: config.maxFreeSockets || 20, keepAlive: true }),
         });
         this.axiosInstance.interceptors.request.use((config) => {
-            this.logger.debug({ url: config.url, method: config.method, params: config.params }, 'Outgoing requests');
             if (config.params) {
                 config.params = { ...config.params };
             } else {
@@ -143,6 +142,7 @@ export class Transport {
                     }
                 }
             }
+            this.logger.debug({ url: config.url, method: config.method, params: config.params }, 'Outgoing requests');
             return config;
         })
         // Reuest interceptor for retry logic

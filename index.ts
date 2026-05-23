@@ -7,6 +7,7 @@ import { TimeoutError } from "./src/errors/TimeoutError.js";
 import { modifyRequestCompanyConfig } from "./src/interfaces/middleware/ModifyRequestCompanyInformation.js";
 import { setRuntimeCompanyConfigHeaders } from "./src/interfaces/middleware/SetRuntimeCompanyConfigHeaders.js";
 import { ReturnCountOnlyWithCountHeaderDirective } from "./src/interfaces/middleware/ReturnCountOnlyWithODataCountQuery.js";
+import { SetPageActionPostRequest } from "./src/interfaces/middleware/PageActionPostRequest.js";
 
 
 
@@ -52,6 +53,7 @@ transport.addMiddleware(setRuntimeCompanyConfigHeaders({ companyName, companyId,
 transport.addMiddleware(modifyRequestCompanyConfig({ companyName, companyId }));
 
 transport.addMiddleware(ReturnCountOnlyWithCountHeaderDirective());
+transport.addMiddleware(SetPageActionPostRequest());
 
 
 export {

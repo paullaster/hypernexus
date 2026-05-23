@@ -346,6 +346,27 @@ console.log(`Active users count: ${traditional.value.length}`); // Active users 
 
 The middleware approach (Method 1) is the most efficient and clean, while Method 2 provides the same result without middleware dependency.
 
+##### Page Action Calls
+Latest version of hypernexus supports page action request(post only).
+To achieve a post request page action you simply just pass the headers that will turn on configuration for this request as intended.
+
+ You'll pass the following headers in the request that calls page action.
+
+###### NOTE
+
+To achieve this, either you must have company id in the configuration e.g. .env file or in the user context but company id must be available for this to work as expected.
+
+ ```js
+  const response = await createResource('getEmployeeReports', {}, {
+      headers: {
+          'Page-Action-Resource-Identifier': 'identifier',
+          'Page-Action': 'action', //e.g. /Microsoft.Nav.GetBase6  - can be anything depening on your scenerio
+          'Page-Action-Post': 'true',
+          'X-Custom-Request-Company-Identifier': 'Company-Id',
+          }
+  });
+ ```
+
 ### Setup this project locally
 
 ### Configuration (Environment variables)
